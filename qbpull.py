@@ -39,7 +39,8 @@ class QBadapter:
         rawDataExportConfig_type = self.client.get_type('ns0:survey_rawDataExportConfig')
         config = rawDataExportConfig_type(useCommaDelimiter="true",
                                           charset="UTF-8",
-                                          exportTemplate="COMPLETE_SURVEY")
+                                          exportTemplate="COMPLETE_SURVEY",
+                                          missingValueNumeric="n/a")
 
         result = self.client.service.survey_results_getRawdataCSV(surveyId=surveyId,
                                                                   exportTypes=exportTypes,
