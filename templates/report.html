@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+    {% block main %}
+    <h1>Market Performance Check</h1>
+    <h2>Benchmark report</h2>
+    <p>Testvar is: {{testvar}}</p>
+    <h2>Your results</h2>
+        <table>
+            <tr>
+                <td>Question</td>
+                <td>Answer</td>
+            </tr>
+            {% for key in questions %}
+            <tr>
+                <td>{{key}}</td>
+                <td>{{data[key]}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endblock %}
