@@ -17,6 +17,7 @@ def mpc_result(survey_index):
     latest_result = qba.get_latest_result(survey_index)
     testvar = latest_result["datetime"]
     questions = get_questions(latest_result)
+
     return render_template("report.html", testvar=testvar, data=latest_result, questions=questions)
 
 def get_questions(full_result):

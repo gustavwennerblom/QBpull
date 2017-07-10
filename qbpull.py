@@ -29,6 +29,24 @@ class QBadapter:
         print(result)
         pass
 
+    def get_questions_base(self, surveyId):
+        logging.info("(Method get_questions_base). Accessing service to retrive questionnaire for survey %i" % surveyId)
+        surveyId_type = self.client.get_type('ns0:survey_surveyId')
+
+        result = self.client.service.survey_questionnaire_getStructure(surveyId=surveyId)
+
+        return result["return"]
+
+    def get_questions(self, surveyId):
+        logging.info("Querying EFS for questionnaire")
+        questionnaire_raw = self.get_questions_base(surveyId)
+        questionnaire = {}
+        # DEVNOTE: THIS IS A JSON-LIKE REPOSNSE THAT NEEDS TO BE INTERPRETED
+        for pages in questionnaire_raw:
+            for page in pages:
+                print (page)
+                input("...")
+
     # Returns a CSV-formatted text string given a surveyId (integer)
     def get_results(self, surveyId):
         # surveyId_type = client.get_type('survey:surveyId')
@@ -40,7 +58,7 @@ class QBadapter:
         config = rawDataExportConfig_type(useCommaDelimiter="true",
                                           charset="UTF-8",
                                           exportTemplate="COMPLETE_SURVEY",
-                                          missingValueNumeric="n/a")
+                                          missingValueNumeric="0")
 
         result = self.client.service.survey_results_getRawdataCSV(surveyId=surveyId,
                                                                   exportTypes=exportTypes,
@@ -56,7 +74,7 @@ class QBadapter:
         answers_text = answers_binary.decode("utf-8")
 
         # Write a copy of the found answers to a csv file for better analysis readability (can be removed later)
-        self.writecopy(answers_text)
+        # self.writecopy(answers_text)
 
         # Note that this returns one long string with linefeed escape characters
         return answers_text
@@ -95,7 +113,8 @@ class QBadapter:
 
 if __name__ == "__main__":
     qba = QBadapter()
-    a = qba.get_latest_result(1394)
+    # a = qba.get_latest_result(1394)
+    a = qba.get_questions(1394)
     import pprint
     pprint.pprint(a)
     print("End")
