@@ -1,4 +1,6 @@
 # GW additions
+alembic.ini
+creds/
 CREDENTIALS.*
 dump.csv
 

@@ -79,6 +79,11 @@ class QBadapter:
         # Note that this returns one long string with linefeed escape characters
         return answers_text
 
+    def get_list_of_surveys(self):
+        result = self.client.service.survey_surveys_getList()
+
+        return result
+
     # Writes a variable to a file (expects text)
     @staticmethod
     def writecopy(text):
@@ -114,7 +119,12 @@ class QBadapter:
 if __name__ == "__main__":
     qba = QBadapter()
     # a = qba.get_latest_result(1394)
-    a = qba.get_questions(1394)
+    a = qba.get_results(1383)               # 1383 = Pilot Business Sweden BES
+    # a = qba.get_list_of_surveys()
     import pprint
     pprint.pprint(a)
+    qba.writecopy(a)
+    import pickle
+    with open('dump.pkl', 'wb') as f:
+        pickle.dump(a, f)
     print("End")
