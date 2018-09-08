@@ -3,17 +3,15 @@ from requests import Session
 from requests.auth import HTTPBasicAuth
 from zeep import Client, xsd
 from zeep.transports import Transport
-import CREDENTIALS
+from creds import qb_credentials
 import csv
-
-logging.basicConfig(level=logging.INFO)
 
 
 class QBadapter:
-    # When instantiating the class, open a session with Questback with admin credentials
+    # When instantiating the class, open a session with Questback with suitable credentials
     def __init__(self):
         self.session = Session()
-        self.session.auth = HTTPBasicAuth(CREDENTIALS.username, CREDENTIALS.password)
+        self.session.auth = HTTPBasicAuth(qb_credentials.username, qb_credentials.password)
         self.client = Client("https://yf2810.customervoice360.com/service/?handler=soap&wsdl=1",
                              transport=Transport(session=self.session))
         logging.info("New QBadapter created")
@@ -115,16 +113,3 @@ class QBadapter:
 
         # In case of failure to find the last row, raise error
         raise IndexError("Failed to find latest result in method get_latest_result()")
-
-if __name__ == "__main__":
-    qba = QBadapter()
-    # a = qba.get_latest_result(1394)
-    a = qba.get_results(1383)               # 1383 = Pilot Business Sweden BES
-    # a = qba.get_list_of_surveys()
-    import pprint
-    pprint.pprint(a)
-    qba.writecopy(a)
-    import pickle
-    with open('dump.pkl', 'wb') as f:
-        pickle.dump(a, f)
-    print("End")
