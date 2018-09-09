@@ -20,6 +20,7 @@ ch_prod = TimedRotatingFileHandler(filename=os.path.join(script_directory, confi
 ch_dev.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 ch_prod.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 log.addHandler(ch_dev)
+log.addHandler(ch_prod)
 log.info("Main logger {} set up to log into directory {}".format(log.name, os.path.join(os.getcwd())))
 
 # Instantiate database handler and Questback handler
@@ -120,10 +121,11 @@ def post_results_bio(data):
 
 if __name__ == '__main__':
     log.info('Starting sequence')
+    sys.exit(2)
     for tp in config.touchpoint_ids.keys():
         try:
             move_results(tp)
         except NotImplementedError:
-            log.error('Touchpoint {0} not yet implemented')
+            log.error('Touchpoint {0} not yet implemented'.format(tp))
 
 
