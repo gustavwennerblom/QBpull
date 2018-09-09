@@ -1,4 +1,5 @@
 # GW additions
+logs/
 alembic.ini
 creds/
 CREDENTIALS.*
