@@ -10,11 +10,14 @@ import csv
 class QBadapter:
     # When instantiating the class, open a session with Questback with suitable credentials
     def __init__(self):
+        # Set uo log
+        log = logging.getLogger('main_log')
+
         self.session = Session()
         self.session.auth = HTTPBasicAuth(qb_credentials.username, qb_credentials.password)
         self.client = Client("https://yf2810.customervoice360.com/service/?handler=soap&wsdl=1",
                              transport=Transport(session=self.session))
-        logging.info("New QBadapter created")
+        log.info("New QBadapter created")
 
     # Method to get system time (for testing)
     def get_system_time(self):
@@ -28,7 +31,7 @@ class QBadapter:
         pass
 
     def get_questions_base(self, surveyId):
-        logging.info("(Method get_questions_base). Accessing service to retrive questionnaire for survey %i" % surveyId)
+        log.info("(Method get_questions_base). Accessing service to retrive questionnaire for survey %i" % surveyId)
         surveyId_type = self.client.get_type('ns0:survey_surveyId')
 
         result = self.client.service.survey_questionnaire_getStructure(surveyId=surveyId)
@@ -36,7 +39,7 @@ class QBadapter:
         return result["return"]
 
     def get_questions(self, surveyId):
-        logging.info("Querying EFS for questionnaire")
+        log.info("Querying EFS for questionnaire")
         questionnaire_raw = self.get_questions_base(surveyId)
         questionnaire = {}
         # DEVNOTE: THIS IS A JSON-LIKE REPOSNSE THAT NEEDS TO BE INTERPRETED
@@ -64,7 +67,7 @@ class QBadapter:
                                                                   dateRange=xsd.SkipValue,
                                                                   sort=xsd.SkipValue,
                                                                   config=config)
-        logging.info("Queried for result of survey %s" % surveyId)
+        log.info("Queried for result of survey %s" % surveyId)
         # The actual data in the response is accessed with the key "return". It's in binary Base64 format
         answers_binary = result["return"]
 
@@ -97,11 +100,10 @@ class QBadapter:
         # function correctly
         answers_reader = csv.DictReader(answers.splitlines())
 
-
         # Iterate through all answers and store the "lfdn" value (index) in 'last_lfdn"
         for row in answers_reader:
             last_lfdn = row['lfdn']
-        logging.info("lfdn value of last line found as %s" % last_lfdn)
+        log.info("lfdn value of last line found as %s" % last_lfdn)
 
         # Reset reader (each DictReader can only be used once)
         answers_reader = csv.DictReader(answers.splitlines())

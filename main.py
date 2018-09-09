@@ -12,7 +12,7 @@ from models import ConsultingServicesTouchpoint
 
 # Logging setup - copied from GPPTOne, adjusted based on GPPT
 script_directory = os.path.dirname(os.path.realpath(__file__))
-log = logging.getLogger(__name__)
+log = logging.getLogger('main_log')
 log.setLevel(logging.DEBUG)
 ch_dev = logging.StreamHandler(sys.stdout)
 ch_prod = TimedRotatingFileHandler(filename=os.path.join(script_directory, config.log_directory, config.log_filename),
@@ -20,7 +20,7 @@ ch_prod = TimedRotatingFileHandler(filename=os.path.join(script_directory, confi
 ch_dev.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 ch_prod.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 log.addHandler(ch_dev)
-print("Main logger {} set up to log into directory {}".format(log.name, os.path.join(os.getcwd())))
+log.info("Main logger {} set up to log into directory {}".format(log.name, os.path.join(os.getcwd())))
 
 # Instantiate database handler and Questback handler
 db = DatabaseManager()
