@@ -5,5 +5,5 @@ log_email_recipient = 'gustav.wennerblom@business-sweden.se'
 
 # Mapping of colloquial names of touchpoints to their respective survey id's in Questback
 touchpoint_ids = {'consulting_services': 1981,
-                  'bes': 0,
+                  'bes': 2032,
                   'sbp': 0}

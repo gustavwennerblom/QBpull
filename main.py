@@ -7,7 +7,7 @@ from io import StringIO
 from dbmanager import DatabaseManager
 from qbpull import QBadapter
 from logging.handlers import TimedRotatingFileHandler
-from models import ConsultingServicesTouchpoint
+from models import ConsultingServicesTouchpoint, BESTouchpoint
 
 
 # Logging setup - copied from GPPTOne, adjusted based on GPPT
@@ -43,7 +43,8 @@ def move_results(touchpoint):
         status = post_results_consulting_services(data)
         return status
     elif touchpoint == 'bes':
-        raise NotImplementedError
+        status = post_results_bes(data)
+        return status
     elif touchpoint == 'sbp':
         raise NotImplementedError
 
@@ -66,7 +67,7 @@ def get_results(touchpoint):
 
 def post_results_consulting_services(data):
     """
-    Pushes data to stage database
+    Pushes consulting services touchpoint data to stage database
     :param data: A csv string
     :return: True if successful
     """
@@ -96,19 +97,53 @@ def post_results_consulting_services(data):
                                                       survey_date=row.get('bg_52'))
             db.session.add(new_record)
             new_record_counter += 1
-            log.info('Record with lfdn={} queued for database insert'.format(row['lfdn']))
+            log.info('Consulting Services record with lfdn={} queued for database insert'.format(row['lfdn']))
         else:
             log.debug('Got already existing record lfdn={0}, skipping insert'.format(row['lfdn']))
     if new_record_counter:
         db.session.commit()
-        log.info('{0} new records commited to database')
+        log.info('{0} new Consulting Services records commited to database'.format(new_record_counter))
     else:
         log.info('No new inserts in database')
     return 200
 
 
 def post_results_bes(data):
-    pass
+    """
+    Pushes BES touchpoint data to stage database
+    :param data: A csv string
+    :return: True if successful
+    """
+    assert isinstance(data, str)
+    reader = csv.DictReader(StringIO(data), delimiter=',', quotechar='"')
+    new_record_counter = 0
+    for row in reader:
+        # Check if the record exists, using lfdn as key
+        lfdn_exists = db.session.query(BESTouchpoint).filter_by(lfdn=row['lfdn']).all()
+        if not lfdn_exists:
+            new_record = BESTouchpoint(lfdn=row.get('lfdn'),
+                                       client_number=row.get('bg_12'),
+                                       client_name=row.get('bg_13'),
+                                       p_spec=row.get('bg_16'),
+                                       business_area=row.get('bg_21'),
+                                       handling_unit=row.get('bg_27'),
+                                       q1=row.get('NKI1'),
+                                       q2=row.get('NKI2'),
+                                       q4=row.get('Trade_KPI'),
+                                       q6=row.get('Improvements_text'),
+                                       survey_date=row.get('bg_52'))
+            db.session.add(new_record)
+            new_record_counter += 1
+            log.info('BES record with lfdn={} queued for database insert'.format(row['lfdn']))
+        else:
+            log.debug('Got already existing BES record lfdn={0}, skipping insert'.format(row['lfdn']))
+    if new_record_counter:
+        db.session.commit()
+        log.info('{0} new BES records commited to database'.format(new_record_counter))
+    else:
+        log.info('No new inserts in database')
+    return 200
+
 
 
 def post_results_sbp(data):
@@ -121,7 +156,6 @@ def post_results_bio(data):
 
 if __name__ == '__main__':
     log.info('Starting sequence')
-    sys.exit(2)
     for tp in config.touchpoint_ids.keys():
         try:
             move_results(tp)
