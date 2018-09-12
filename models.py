@@ -10,7 +10,8 @@ class ConsultingServicesTouchpoint(Base):
     lfdn = Column(Integer, unique=True)         # lfdn
     project_number = Column(Integer)            # bg_08
     subproject_number = Column(String(15))        # bg_54
-    client_name = Column(String(200))           # bg_09
+    client_number = Column(Integer)             # bg_12
+    client_name = Column(String(200))           # bg_13 (corrected)
     p_spec = Column(Integer)                    # bg_16
     assignment_type = Column(String(20))        # bg_18
     business_area = Column(String(50))          # bg_21
