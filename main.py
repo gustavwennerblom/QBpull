@@ -104,7 +104,7 @@ def post_results_consulting_services(data):
             new_record_counter += 1
             log.info('Consulting Services record with lfdn={} queued for database insert'.format(row['lfdn']))
         else:
-            log.debug('Got already existing record lfdn={0}, skipping insert'.format(row['lfdn']))
+            log.debug('Got already existing Consulting Services record lfdn={0}, skipping insert'.format(row['lfdn']))
     if new_record_counter:
         db.session.commit()
         log.info('{0} new Consulting Services records commited to database'.format(new_record_counter))
@@ -289,8 +289,10 @@ if __name__ == '__main__':
             move_results(tp)
         except NotImplementedError:
             log.error('Touchpoint {0} not yet implemented'.format(tp))
+    log.info('Initialising LogMailer')
     logmailer = LogMailer()
     logfile_pointer = os.path.abspath(os.path.join(os.getcwd(), config.log_directory, config.log_filename))
+    log.info('Fetching log file at {}'.format(logfile_pointer))
     logmailer.send_mail(subject_text="Log from QBpull",
                         body_text="Check attachment for log details",
                         attachment_path=logfile_pointer)
