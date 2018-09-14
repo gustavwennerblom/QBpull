@@ -292,7 +292,7 @@ if __name__ == '__main__':
             log.error('Touchpoint {0} not yet implemented'.format(tp))
     log.info('Initialising LogMailer')
     logmailer = LogMailer()
-    logfile_pointer = os.path.abspath(os.path.join(os.getcwd(), config.log_directory, config.log_filename))
+    logfile_pointer = os.path.join(script_directory, config.log_directory, config.log_filename)
     log.info('Fetching log file at {}'.format(logfile_pointer))
     logmailer.send_mail(subject_text="Log from QBpull",
                         body_text="Check attachment for log details",
