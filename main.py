@@ -14,7 +14,7 @@ from mailer import LogMailer
 # Logging setup - copied from GPPTOne, adjusted based on GPPT
 script_directory = os.path.dirname(os.path.realpath(__file__))
 log = logging.getLogger('main_log')
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 ch_dev = logging.StreamHandler(sys.stdout)
 ch_prod = TimedRotatingFileHandler(filename=os.path.join(script_directory, config.log_directory, config.log_filename),
                                    when='d', interval=1, backupCount=7)
