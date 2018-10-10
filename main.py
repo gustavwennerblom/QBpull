@@ -8,7 +8,7 @@ from dbmanager import DatabaseManager
 from qbpull import QBadapter
 from logging.handlers import TimedRotatingFileHandler
 from models import ConsultingServicesTouchpoint, BESTouchpoint, BOPandConnectTouchpoint, \
-    TrainingsTouchpoint, BusinessPromotionTouchpoint
+    TrainingsTouchpoint, BusinessPromotionTouchpoint, MISTouchpoint
 from mailer import LogMailer
 
 # Logging setup - copied from GPPTOne, adjusted based on GPPT
@@ -51,6 +51,8 @@ def move_results(touchpoint):
         post_results_trainings(data)
     elif touchpoint == 'business_promotion':
         post_results_business_promotion(data)
+    elif touchpoint == 'monthly_invoiced_services':
+        post_results_mis(data)
     else:
         log.warning('Touchpoint {0} has no configured method to post data to stage database'.format(touchpoint))
 
@@ -110,7 +112,7 @@ def post_results_consulting_services(data):
         db.session.commit()
         log.info('{0} new Consulting Services records commited to database'.format(new_record_counter))
     else:
-        log.info('No new inserts in database')
+        log.info('No new Consulting Services record inserts in database')
     return 200
 
 
@@ -147,7 +149,7 @@ def post_results_bes(data):
         db.session.commit()
         log.info('{0} new BES records commited to database'.format(new_record_counter))
     else:
-        log.info('No new inserts in database')
+        log.info('No new BES record inserts in database')
     return 200
 
 
@@ -192,7 +194,7 @@ def post_results_bop_and_connect(data):
         db.session.commit()
         log.info('{0} new BOP/Connect records commited to database'.format(new_record_counter))
     else:
-        log.info('No new inserts in database')
+        log.info('No new BOP/Connect record inserts in database')
     return 200
 
 
@@ -234,7 +236,7 @@ def post_results_trainings(data):
         db.session.commit()
         log.info('{0} new Training records commited to database'.format(new_record_counter))
     else:
-        log.info('No new inserts in database')
+        log.info('No new Training record inserts in database')
 
 
 def post_results_business_promotion(data):
@@ -278,11 +280,54 @@ def post_results_business_promotion(data):
         db.session.commit()
         log.info('{0} new Business Promotion records commited to database'.format(new_record_counter))
     else:
-        log.info('No new inserts in database')
+        log.info('No new Business Promotion record inserts in database')
+
+
+def post_results_mis(data):
+    """
+    Pushes Monthly Invoiced Services touchpoint data to stage database
+    :param data: A csv string
+    :return: void
+    """
+    assert isinstance(data, str)
+    reader = csv.DictReader(StringIO(data), delimiter=',', quotechar='"')
+    new_record_counter = 0
+    for row in reader:
+        lfdn_exists = db.session.query(MISTouchpoint).filter_by(lfdn=row['lfdn']).all()
+        if not lfdn_exists:
+            new_record = MISTouchpoint(lfdn=row.get('lfdn'),
+                                       project_number=row.get('bg_08'),
+                                       subproject_number=row.get('bg_54'),
+                                       client_number=row.get('bg_12'),
+                                       client_name=row.get('bg_13'),
+                                       p_spec=row.get('bg_16'),
+                                       assignment_type=row.get('bg_18'),
+                                       business_area=row.get('bg_21'),
+                                       project_cc=row.get('bg_26'),
+                                       NKI1=row.get('NKI1'),
+                                       NKI2=row.get('NKI2'),
+                                       TradeKPI=row.get('Trade_KPI'),
+                                       agr_prepared=row.get('bg_22'),
+                                       agr_updated=row.get('bg_23'),
+                                       survey_date=row.get('bg_52'))
+            db.session.add(new_record)
+            new_record_counter += 1
+            log.info('MIS record with lfdn={} queued for database insert'.format(row['lfdn']))
+        else:
+            log.debug('Got already existing MIS record lfdn={}, skipping insert'.format(row['lfdn']))
+    if new_record_counter:
+        db.session.commit()
+        log.info('{} new MIS records committed to database'.format(new_record_counter))
+    else:
+        log.info('No new MIS record inserts in database')
 
 
 if __name__ == '__main__':
     log.info('Starting sequence')
+
+    move_results('monthly_invoiced_services')
+    import sys
+    sys.exit(2)
 
     # Iterate through all touchpoints (production mode)
     for tp in config.touchpoint_ids.keys():
