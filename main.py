@@ -254,6 +254,7 @@ def post_results_business_promotion(data):
         if not lfdn_exists:
             new_record = BusinessPromotionTouchpoint(lfdn=row.get('lfdn'),
                                                      project_number=row.get('bg_08'),
+                                                     subproject_number=row.get('bg_54'),
                                                      client_number=row.get('bg_12'),
                                                      client_name=row.get('bg_13'),
                                                      p_spec=row.get('bg_16'),
@@ -325,9 +326,10 @@ def post_results_mis(data):
 if __name__ == '__main__':
     log.info('Starting sequence')
 
-    move_results('monthly_invoiced_services')
-    import sys
-    sys.exit(2)
+    # TEST script for single touchpoint. Delete.
+    # move_results('monthly_invoiced_services')
+    # import sys
+    # sys.exit(2)
 
     # Iterate through all touchpoints (production mode)
     for tp in config.touchpoint_ids.keys():
