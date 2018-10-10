@@ -8,7 +8,7 @@ from dbmanager import DatabaseManager
 from qbpull import QBadapter
 from logging.handlers import TimedRotatingFileHandler
 from models import ConsultingServicesTouchpoint, BESTouchpoint, BOPandConnectTouchpoint, \
-    TrainingsTouchpoint, BusinessPromotionTouchpoint, MISTouchpoint
+    TrainingsTouchpoint, BusinessPromotionTouchpoint, MISTouchpoint, GBDAdvisoryTouchpoint
 from mailer import LogMailer
 
 # Logging setup - copied from GPPTOne, adjusted based on GPPT
@@ -53,6 +53,8 @@ def move_results(touchpoint):
         post_results_business_promotion(data)
     elif touchpoint == 'monthly_invoiced_services':
         post_results_mis(data)
+    elif touchpoint == 'GBD_advisory':
+        post_results_GBD_advisory(data)
     else:
         log.warning('Touchpoint {0} has no configured method to post data to stage database'.format(touchpoint))
 
@@ -323,13 +325,47 @@ def post_results_mis(data):
         log.info('No new MIS record inserts in database')
 
 
+def post_results_GBD_advisory(data):
+    """
+    Pushes GBD Advisory touchpoint (a.k.a STEPS touchpoint) data to stage database
+    :param data: A csv string
+    :return: void
+    """
+    assert isinstance(data, str)
+    reader = csv.DictReader(StringIO(data), delimiter=',', quotechar='"')
+    new_record_counter = 0
+    for row in reader:
+        lfdn_exists = db.session.query(GBDAdvisoryTouchpoint).filter_by(lfdn=row['lfdn']).all()
+        if not lfdn_exists:
+            new_record = GBDAdvisoryTouchpoint(lfdn=row.get('lfdn'),
+                                               project_number=row.get('bg_08'),
+                                               subproject_number=row.get('bg_54'),
+                                               client_number=row.get('bg_12'),
+                                               client_name=row.get('bg_13'),
+                                               p_spec=row.get('bg_16'),
+                                               assignment_type=row.get('bg_18'),
+                                               business_area=row.get('bg_21'),
+                                               project_cc=row.get('bg_26'),
+                                               NKI1=row.get('NKI1'),
+                                               NKI2=row.get('NKI2'),
+                                               TradeKPI=row.get('Trade_KPI'),
+                                               agr_prepared=row.get('bg_22'),
+                                               agr_updated=row.get('bg_23'),
+                                               survey_date=row.get('bg_52'))
+            db.session.add(new_record)
+            new_record_counter += 1
+            log.info('GBD Advisory record with lfdn={} queued for database insert'.format(row['lfdn']))
+        else:
+            log.debug('Got already existing GBD Advisory record lfdn={}, skipping insert'.format(row['lfdn']))
+    if new_record_counter:
+        db.session.commit()
+        log.info('{} new GBD Advisory records committed to database'.format(new_record_counter))
+    else:
+        log.info('No new GBD Advisory inserts in database')
+
+
 if __name__ == '__main__':
     log.info('Starting sequence')
-
-    # TEST script for single touchpoint. Delete.
-    # move_results('monthly_invoiced_services')
-    # import sys
-    # sys.exit(2)
 
     # Iterate through all touchpoints (production mode)
     for tp in config.touchpoint_ids.keys():
