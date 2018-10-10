@@ -9,4 +9,5 @@ touchpoint_ids = {'consulting_services': 1981,
                   'bopandconnect': 2003,
                   'trainings': 2053,
                   'business_promotion': 1997,
-                  'monthly_invoiced_services': 2046}
+                  'monthly_invoiced_services': 2046,
+                  'GBD_advisory': 2039}
