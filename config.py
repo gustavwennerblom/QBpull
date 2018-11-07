@@ -10,4 +10,5 @@ touchpoint_ids = {'consulting_services': 1981,
                   'trainings': 2053,
                   'business_promotion': 1997,
                   'monthly_invoiced_services': 2046,
+                  'monthly_invoiced_services_v3': 2556,
                   'GBD_advisory': 2039}

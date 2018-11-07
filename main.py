@@ -51,7 +51,7 @@ def move_results(touchpoint):
         post_results_trainings(data)
     elif touchpoint == 'business_promotion':
         post_results_business_promotion(data)
-    elif touchpoint == 'monthly_invoiced_services':
+    elif touchpoint == 'monthly_invoiced_services' or touchpoint == 'monthly_invoiced_services_v3':
         post_results_mis(data)
     elif touchpoint == 'GBD_advisory':
         post_results_GBD_advisory(data)
