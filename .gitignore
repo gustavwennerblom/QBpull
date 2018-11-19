@@ -1,4 +1,5 @@
 # GW additions
+*.zip
 logs/
 alembic.ini
 creds/
